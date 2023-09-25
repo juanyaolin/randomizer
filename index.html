@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+  <!--
+    WARNING! Make sure that you match all Quasar related
+    tags to the same version! (Below it's "@2.12.0")
+  -->
+
+  <head>
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link
+      href="https://use.fontawesome.com/releases/v6.1.1/css/all.css"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/animate.css@^4.0.0/animate.min.css"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/quasar@2.12.0/dist/quasar.prod.css"
+      rel="stylesheet"
+      type="text/css"
+    />
+
+    <style>
+      .prizes {
+        padding: 4rem 2rem;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- example of injection point where you write your app template -->
+    <div id="q-app">
+      <q-layout view="hHh lpR fFf">
+        <q-page-container>
+          <div class="prizes">
+            <div
+              v-for="(rowPrizes, rowIndex) in groupedPrizes"
+              class="row q-mb-lg q-gutter-lg"
+              :key="rowIndex"
+            >
+              <div
+                v-for="(prize, index) in rowPrizes"
+                class="col flex flex-center"
+                style="min-height: 100px"
+                :style="prize.isBorderShow ? 'background-color: tomato' : ''"
+                :key="prize.index"
+              >
+                <q-avatar
+                  square
+                  :color="prize.isPicked ? 'grey-7' :'teal'"
+                  text-color="white"
+                  class="self-center"
+                  size="85px"
+                >
+                  {{ prize.value }}
+                </q-avatar>
+              </div>
+            </div>
+          </div>
+
+          <q-btn
+            label="開始"
+            @click="pickUp"
+            :color="startBtnClickable ? 'primary' : 'grey-10'"
+            :disabled="!startBtnClickable"
+          ></q-btn>
+        </q-page-container>
+      </q-layout>
+    </div>
+
+    <!-- Add the following at the end of your body tag -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/quasar@2.12.0/dist/quasar.umd.prod.js"></script>
+
+    <script>
+      // 建立選項
+      const createPrizes = (count) => {
+        const prizes = [];
+
+        for (let index = 0; index < count; index++) {
+          prizes.push({
+            key: `prize-${index + 1}`,
+            index: index,
+            value: index + 1,
+            isPicked: false,
+            isBorderShow: false,
+          });
+        }
+
+        return prizes;
+      };
+
+      // 取得隨機值
+      const getRandom = (min, max) => {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+      };
+
+      /*
+        Example kicking off the UI. Obviously, adapt this to your specific needs.
+        Assumes you have a <div id="q-app"></div> in your <body> above
+       */
+      const app = Vue.createApp({
+        setup() {
+          const prizeCount = 30;
+          const prizeCountPerRow = 10;
+          const latencies = [0, 200, 100, 50];
+          const startBtnClickable = Vue.ref(true);
+          const prizes = Vue.reactive(createPrizes(prizeCount));
+          const prizeRounds = Vue.ref(-1);
+          const rounds = Vue.ref(-1);
+          const prizeIndex = Vue.ref(-1);
+          const latency = Vue.ref(100);
+
+          const groupedPrizes = Vue.computed(() => {
+            const groupedPrizes = [];
+
+            prizes.forEach((prize) => {
+              const rowIndex = Math.floor(prize.index / prizeCountPerRow);
+              const rowPrizes = groupedPrizes[rowIndex] || [];
+
+              rowPrizes.push(prize);
+
+              groupedPrizes[rowIndex] = rowPrizes;
+            });
+
+            return groupedPrizes;
+          });
+
+          const pickedPrizes = Vue.computed(() => {
+            return prizes.filter((prize) => prize.isPicked);
+          });
+          const unpickedPrizes = Vue.computed(() => {
+            return prizes.filter((prize) => !prize.isPicked);
+          });
+
+          const runPickAnime = (index) => {
+            if (rounds.value == prizeRounds.value) {
+              unpickedPrizes.value[prizeIndex.value].isBorderShow = false;
+              unpickedPrizes.value[prizeIndex.value].isPicked = true;
+              rounds.value = prizeIndex.value - 1;
+              prizeRounds.value = -1;
+              latency.value = 100;
+
+              return;
+            }
+
+            if (!!unpickedPrizes.value[prizeIndex.value]) {
+              unpickedPrizes.value[prizeIndex.value].isBorderShow = false;
+            }
+
+            rounds.value++;
+            prizeIndex.value = rounds.value % unpickedPrizes.value.length;
+
+            if (!!unpickedPrizes.value[prizeIndex.value]) {
+              unpickedPrizes.value[prizeIndex.value].isBorderShow = true;
+            }
+
+            if (prizeRounds.value - rounds.value <= 10) {
+              latency.value += latencies[prizeRounds.value - rounds.value] | 20;
+            } else if (rounds.value < prizeRounds.value) {
+              latency.value -= 10;
+            }
+
+            if (latency.value <= 30) {
+              latency.value = 30;
+            }
+
+            setTimeout(() => {
+              runPickAnime(index + 1);
+            }, latency.value);
+          };
+
+          const pickUp = () => {
+            startBtnClickable.value = false;
+
+            prizeRounds.value =
+              getRandom(
+                unpickedPrizes.value.length * 3,
+                unpickedPrizes.value.length * 5 - 1
+              ) + rounds.value;
+
+            runPickAnime(1);
+
+            startBtnClickable.value = true;
+          };
+
+          return {
+            startBtnClickable,
+            groupedPrizes,
+            pickUp,
+          };
+        },
+      });
+
+      app.use(Quasar);
+      app.mount("#q-app");
+    </script>
+  </body>
+</html>
