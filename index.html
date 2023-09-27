@@ -66,11 +66,38 @@
           </div>
 
           <q-btn
-            label="開始"
-            @click="pickUp"
-            :color="startBtnClickable ? 'primary' : 'grey-10'"
-            :disabled="!startBtnClickable"
+            label="抽選"
+            @click="startBtnClickable = false; pickUp()"
+            color="primary"
+            v-show="startBtnClickable"
           ></q-btn>
+
+          <q-dialog v-model="showModal">
+            <q-card style="width: 50vw">
+              <q-card-section align="center">
+                <div class="text-h6">中獎號碼</div>
+              </q-card-section>
+
+              <q-card-section class="q-pt-none">
+                <div class="flex flex-center" style="font-size: 10rem">
+                  {{ pickedPrize.value }}
+                </div>
+              </q-card-section>
+
+              <q-card-actions align="center">
+                <q-btn
+                  label="抽選下一個"
+                  color="primary"
+                  v-close-popup
+                  @click="
+                    pickedPrize.isPicked = true;
+                    pickedPrize.isBorderShow = false;
+                    pickUp()
+                  "
+                ></q-btn>
+              </q-card-actions>
+            </q-card>
+          </q-dialog>
         </q-page-container>
       </q-layout>
     </div>
@@ -117,6 +144,8 @@
           const rounds = Vue.ref(-1);
           const prizeIndex = Vue.ref(-1);
           const latency = Vue.ref(100);
+          const showModal = Vue.ref(false);
+          const pickedPrize = Vue.ref({});
 
           const groupedPrizes = Vue.computed(() => {
             const groupedPrizes = [];
@@ -140,10 +169,12 @@
             return prizes.filter((prize) => !prize.isPicked);
           });
 
-          const runPickAnime = (index) => {
+          const runPickAnime = () => {
             if (rounds.value == prizeRounds.value) {
-              unpickedPrizes.value[prizeIndex.value].isBorderShow = false;
-              unpickedPrizes.value[prizeIndex.value].isPicked = true;
+              showModal.value = true;
+              pickedPrize.value = unpickedPrizes.value[prizeIndex.value];
+              // pickedPrize.value.isBorderShow = false;
+              // pickedPrize.value.isPicked = true;
               rounds.value = prizeIndex.value - 1;
               prizeRounds.value = -1;
               latency.value = 100;
@@ -168,17 +199,17 @@
               latency.value -= 10;
             }
 
-            if (latency.value <= 30) {
-              latency.value = 30;
+            if (latency.value <= 40) {
+              latency.value = 40;
             }
 
             setTimeout(() => {
-              runPickAnime(index + 1);
+              runPickAnime();
             }, latency.value);
           };
 
           const pickUp = () => {
-            startBtnClickable.value = false;
+            // startBtnClickable.value = false;
 
             prizeRounds.value =
               getRandom(
@@ -186,14 +217,16 @@
                 unpickedPrizes.value.length * 5 - 1
               ) + rounds.value;
 
-            runPickAnime(1);
+            runPickAnime();
 
-            startBtnClickable.value = true;
+            // startBtnClickable.value = true;
           };
 
           return {
             startBtnClickable,
+            showModal,
             groupedPrizes,
+            pickedPrize,
             pickUp,
           };
         },
