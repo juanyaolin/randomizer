@@ -1,0 +1,27 @@
+.prizes {
+  /* padding: 4rem 2rem; */
+}
+
+.bg-repeat-none {
+  background-repeat: no-repeat;
+}
+
+.bg-size-contain {
+  background-size: contain;
+}
+
+.bg-size-cover {
+  background-size: cover;
+}
+
+.w-100 {
+  width: 100%;
+}
+
+.h-100 {
+  height: 100%;
+}
+
+.mh-100 {
+  min-height: 100%;
+}

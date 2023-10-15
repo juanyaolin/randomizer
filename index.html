@@ -27,77 +27,85 @@
       type="text/css"
     />
 
-    <style>
-      .prizes {
-        padding: 4rem 2rem;
-      }
-    </style>
+    <link rel="stylesheet" href="style.css" />
   </head>
 
   <body>
-    <!-- example of injection point where you write your app template -->
     <div id="q-app">
-      <q-layout view="hHh lpR fFf">
+      <q-layout
+        view="hHh lpR fFf"
+        class="bg-repeat-none bg-size-cover"
+        :style="`background-image: url(${bgImage})`"
+      >
         <q-page-container>
-          <div class="prizes">
-            <div
-              v-for="(rowPrizes, rowIndex) in groupedPrizes"
-              class="row q-mb-lg q-gutter-lg"
-              :key="rowIndex"
-            >
-              <div
-                v-for="(prize, index) in rowPrizes"
-                class="col flex flex-center"
-                style="min-height: 100px"
-                :style="prize.isBorderShow ? 'background-color: tomato' : ''"
-                :key="prize.index"
-              >
-                <q-avatar
-                  square
-                  :color="prize.isPicked ? 'grey-7' :'teal'"
-                  text-color="white"
-                  class="self-center"
-                  size="85px"
+          <div style="padding: 2rem 4rem">
+            <div class="column" style="border: 5px solid #fcc382">
+              <!-- title -->
+              <div class="col">
+                <div
+                  class="flex flex-center q-my-lg"
+                  style="font-size: 96px; font-weight: 700; color: #ffa497"
                 >
-                  {{ prize.value }}
-                </q-avatar>
+                  幸福彩
+                </div>
+              </div>
+
+              <!-- prizes -->
+              <div class="col">
+                <div class="prizes q-my-lg">
+                  <div
+                    v-for="(rowPrizes, rowIndex) in groupedPrizes"
+                    class="row q-mb-lg q-gutter-lg"
+                    :key="rowIndex"
+                  >
+                    <div
+                      v-for="(prize, index) in rowPrizes"
+                      class="col flex flex-center"
+                      style="min-height: 100px"
+                      :style="prize.isBorderShow ? 'background-color: red' : ''"
+                      :key="prize.index"
+                    >
+                      <q-avatar
+                        square
+                        :color="prize.isPicked ? 'grey-5' :'orange-3'"
+                        text-color="black"
+                        class="self-center q-ma-sm"
+                        size="8.5rem"
+                      >
+                        {{ prize.value }}
+                      </q-avatar>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- btuttons -->
+              <div class="col">
+                <div class="row reverse q-ma-md">
+                  <div
+                    class="bg-repeat-none bg-size-cover flex flex-center q-my-lg"
+                    style="
+                      background-image: url('button.png');
+                      width: 300px;
+                      height: 175px;
+                      font-size: 3rem;
+                      font-weight: 700;
+                      color: #ffa497;
+                      user-select: none;
+                    "
+                    :style="startBtnClickable ? '' : `filter: grayscale();`"
+                    @click="pickUp()"
+                  >
+                    開始
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          <q-btn
-            label="抽選"
-            @click="startBtnClickable = false; pickUp()"
-            color="primary"
-            v-show="startBtnClickable"
-          ></q-btn>
-
-          <q-dialog v-model="showModal">
-            <q-card style="width: 50vw">
-              <q-card-section align="center">
-                <div class="text-h6">中獎號碼</div>
-              </q-card-section>
-
-              <q-card-section class="q-pt-none">
-                <div class="flex flex-center" style="font-size: 10rem">
-                  {{ pickedPrize.value }}
-                </div>
-              </q-card-section>
-
-              <q-card-actions align="center">
-                <q-btn
-                  label="抽選下一個"
-                  color="primary"
-                  v-close-popup
-                  @click="
-                    pickedPrize.isPicked = true;
-                    pickedPrize.isBorderShow = false;
-                    pickUp()
-                  "
-                ></q-btn>
-              </q-card-actions>
-            </q-card>
-          </q-dialog>
+          <div class="" style="position: absolute; bottom: 0px; left: 0px">
+            <img src="lion.png" alt="" style="width: 300px" />
+          </div>
         </q-page-container>
       </q-layout>
     </div>
@@ -106,134 +114,6 @@
     <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/quasar@2.12.0/dist/quasar.umd.prod.js"></script>
 
-    <script>
-      // 建立選項
-      const createPrizes = (count) => {
-        const prizes = [];
-
-        for (let index = 0; index < count; index++) {
-          prizes.push({
-            key: `prize-${index + 1}`,
-            index: index,
-            value: index + 1,
-            isPicked: false,
-            isBorderShow: false,
-          });
-        }
-
-        return prizes;
-      };
-
-      // 取得隨機值
-      const getRandom = (min, max) => {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-      };
-
-      /*
-        Example kicking off the UI. Obviously, adapt this to your specific needs.
-        Assumes you have a <div id="q-app"></div> in your <body> above
-       */
-      const app = Vue.createApp({
-        setup() {
-          const prizeCount = 30;
-          const prizeCountPerRow = 10;
-          const latencies = [0, 200, 100, 50];
-          const startBtnClickable = Vue.ref(true);
-          const prizes = Vue.reactive(createPrizes(prizeCount));
-          const prizeRounds = Vue.ref(-1);
-          const rounds = Vue.ref(-1);
-          const prizeIndex = Vue.ref(-1);
-          const latency = Vue.ref(100);
-          const showModal = Vue.ref(false);
-          const pickedPrize = Vue.ref({});
-
-          const groupedPrizes = Vue.computed(() => {
-            const groupedPrizes = [];
-
-            prizes.forEach((prize) => {
-              const rowIndex = Math.floor(prize.index / prizeCountPerRow);
-              const rowPrizes = groupedPrizes[rowIndex] || [];
-
-              rowPrizes.push(prize);
-
-              groupedPrizes[rowIndex] = rowPrizes;
-            });
-
-            return groupedPrizes;
-          });
-
-          const pickedPrizes = Vue.computed(() => {
-            return prizes.filter((prize) => prize.isPicked);
-          });
-          const unpickedPrizes = Vue.computed(() => {
-            return prizes.filter((prize) => !prize.isPicked);
-          });
-
-          const runPickAnime = () => {
-            if (rounds.value == prizeRounds.value) {
-              showModal.value = true;
-              pickedPrize.value = unpickedPrizes.value[prizeIndex.value];
-              // pickedPrize.value.isBorderShow = false;
-              // pickedPrize.value.isPicked = true;
-              rounds.value = prizeIndex.value - 1;
-              prizeRounds.value = -1;
-              latency.value = 100;
-
-              return;
-            }
-
-            if (!!unpickedPrizes.value[prizeIndex.value]) {
-              unpickedPrizes.value[prizeIndex.value].isBorderShow = false;
-            }
-
-            rounds.value++;
-            prizeIndex.value = rounds.value % unpickedPrizes.value.length;
-
-            if (!!unpickedPrizes.value[prizeIndex.value]) {
-              unpickedPrizes.value[prizeIndex.value].isBorderShow = true;
-            }
-
-            if (prizeRounds.value - rounds.value <= 10) {
-              latency.value += latencies[prizeRounds.value - rounds.value] | 20;
-            } else if (rounds.value < prizeRounds.value) {
-              latency.value -= 10;
-            }
-
-            if (latency.value <= 40) {
-              latency.value = 40;
-            }
-
-            setTimeout(() => {
-              runPickAnime();
-            }, latency.value);
-          };
-
-          const pickUp = () => {
-            // startBtnClickable.value = false;
-
-            prizeRounds.value =
-              getRandom(
-                unpickedPrizes.value.length * 3,
-                unpickedPrizes.value.length * 5 - 1
-              ) + rounds.value;
-
-            runPickAnime();
-
-            // startBtnClickable.value = true;
-          };
-
-          return {
-            startBtnClickable,
-            showModal,
-            groupedPrizes,
-            pickedPrize,
-            pickUp,
-          };
-        },
-      });
-
-      app.use(Quasar);
-      app.mount("#q-app");
-    </script>
+    <script src="index.js"></script>
   </body>
 </html>
