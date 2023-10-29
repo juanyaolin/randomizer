@@ -25,3 +25,20 @@
 .mh-100 {
   min-height: 100%;
 }
+
+.talk-dialog-in {
+  animation: moveAndScale 0.5s linear;
+}
+
+@keyframes moveAndScale {
+  0% {
+    transform: translateX(-100%) scale(0);
+  }
+  100% {
+    transform: translateX(0%) scale(1);
+  }
+}
+
+.hide {
+  display: none;
+}

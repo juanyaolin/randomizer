@@ -1,10 +1,5 @@
 <!DOCTYPE html>
 <html>
-  <!--
-    WARNING! Make sure that you match all Quasar related
-    tags to the same version! (Below it's "@2.12.0")
-  -->
-
   <head>
     <link
       href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900"
@@ -17,17 +12,12 @@
       type="text/css"
     />
     <link
-      href="https://cdn.jsdelivr.net/npm/animate.css@^4.0.0/animate.min.css"
-      rel="stylesheet"
-      type="text/css"
-    />
-    <link
       href="https://cdn.jsdelivr.net/npm/quasar@2.12.0/dist/quasar.prod.css"
       rel="stylesheet"
       type="text/css"
     />
 
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="assets/css/style.css" />
   </head>
 
   <body>
@@ -35,7 +25,7 @@
       <q-layout
         view="hHh lpR fFf"
         class="bg-repeat-none bg-size-cover"
-        :style="`background-image: url(${bgImage})`"
+        style="background-image: url(assets/image/bg.jpg)"
       >
         <q-page-container>
           <div style="padding: 2rem 4rem">
@@ -44,7 +34,7 @@
               <div class="col">
                 <div
                   class="flex flex-center q-my-lg"
-                  style="font-size: 96px; font-weight: 700; color: #ffa497"
+                  style="font-size: 6rem; font-weight: 700; color: #ffa497"
                 >
                   幸福彩
                 </div>
@@ -85,7 +75,7 @@
                   <div
                     class="bg-repeat-none bg-size-cover flex flex-center q-my-lg"
                     style="
-                      background-image: url('button.png');
+                      background-image: url(assets/image/button.png);
                       width: 300px;
                       height: 175px;
                       font-size: 3rem;
@@ -103,8 +93,31 @@
             </div>
           </div>
 
+          <div
+            id="test"
+            class="hide"
+            style="position: absolute; bottom: 0px; left: 350px"
+          >
+            <div style="position: relative">
+              <img src="assets/image/talk.png" alt="" style="width: 400px" />
+              <div
+                class="text-center"
+                style="
+                  position: absolute;
+                  top: 50%;
+                  left: 50%;
+                  font-size: 7.5rem;
+                  font-weight: 700;
+                  transform: translate(-50%, -50%);
+                "
+              >
+                {{pickedPrize.value}}
+              </div>
+            </div>
+          </div>
+
           <div class="" style="position: absolute; bottom: 0px; left: 0px">
-            <img src="lion.png" alt="" style="width: 300px" />
+            <img src="assets/image/lion.png" alt="" style="width: 300px" />
           </div>
         </q-page-container>
       </q-layout>
@@ -114,6 +127,6 @@
     <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/quasar@2.12.0/dist/quasar.umd.prod.js"></script>
 
-    <script src="index.js"></script>
+    <script src="assets/js/index.js"></script>
   </body>
 </html>

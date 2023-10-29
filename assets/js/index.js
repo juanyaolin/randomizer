@@ -28,18 +28,27 @@ const createPrizes = (count) => {
   return prizes;
 };
 
+const sound = new Audio("assets/sound/disconnect.mp3");
+const meowSound = new Audio("assets/sound/meow.mp3");
+
 // 取得隨機值
 const getRandom = (min, max) => {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
-const getRandomPrize = (prizeGroups) => {
+const getRandomPrize = (playCount, prizeGroups) => {
   const pool = [];
-  const itemCount = [0, 3, 6, 10];
+  const itemCount = [0, 0, 3, 10];
 
   prizeGroups.forEach((prizeGroup, index) => {
-    for (let i = 0; i < itemCount[prizeGroup.length]; i++) {
-      pool.push(index);
+    if (playCount.value < 18) {
+      for (let i = 0; i < itemCount[prizeGroup.length]; i++) {
+        pool.push(index);
+      }
+    } else {
+      if (prizeGroup.length == 1) {
+        pool.push(index);
+      }
     }
   });
 
@@ -56,8 +65,6 @@ const getRandomPrize = (prizeGroups) => {
 
 const app = Vue.createApp({
   setup() {
-    const bgImageFile = Vue.ref(undefined);
-    const bgImage = Vue.ref("bg.jpg");
     const prizeCount = 30;
     const prizeCountPerRow = 10;
     const latencies = [0, 200, 100, 50];
@@ -67,12 +74,9 @@ const app = Vue.createApp({
     const rounds = Vue.ref(-1);
     const prizeIndex = Vue.ref(-1);
     const latency = Vue.ref(100);
-    const showModal = Vue.ref(false);
     const pickedPrize = Vue.ref({});
-
-    Vue.watch(bgImageFile, (value) => {
-      bgImage.value = URL.createObjectURL(value);
-    });
+    const playCount = Vue.ref(0);
+    const stopCount = Vue.ref(0);
 
     const groupedPrizes = Vue.computed(() => {
       const groupedPrizes = [];
@@ -98,14 +102,21 @@ const app = Vue.createApp({
 
     const runPickAnime = () => {
       if (rounds.value == prizeRounds.value) {
-        showModal.value = true;
         pickedPrize.value = unpickedPrizes.value[prizeIndex.value];
         pickedPrize.value.isBorderShow = false;
         pickedPrize.value.isPicked = true;
         rounds.value = prizeIndex.value - 1;
         prizeRounds.value = -1;
         latency.value = 100;
-        startBtnClickable.value = true;
+        meowSound.play();
+
+        const element = document.querySelector("#test").classList;
+        element.add("talk-dialog-in");
+        element.remove("hide");
+
+        if (playCount.value < 18) {
+          startBtnClickable.value = true;
+        }
 
         return;
       }
@@ -119,9 +130,10 @@ const app = Vue.createApp({
 
       if (!!unpickedPrizes.value[prizeIndex.value]) {
         unpickedPrizes.value[prizeIndex.value].isBorderShow = true;
+        sound.play();
       }
 
-      if (prizeRounds.value - rounds.value <= 10) {
+      if (prizeRounds.value - rounds.value <= stopCount.value) {
         latency.value += latencies[prizeRounds.value - rounds.value] | 20;
       } else if (rounds.value < prizeRounds.value) {
         latency.value -= 10;
@@ -142,8 +154,9 @@ const app = Vue.createApp({
       }
 
       startBtnClickable.value = false;
+      playCount.value++;
 
-      const prize = getRandomPrize(prizeGroups);
+      const prize = getRandomPrize(playCount, prizeGroups);
 
       let rr = -1;
       unpickedPrizes.value.forEach((item, index) => {
@@ -153,17 +166,16 @@ const app = Vue.createApp({
       });
 
       prizeRounds.value = unpickedPrizes.value.length * getRandom(3, 5) + rr;
+      stopCount.value = 10 + getRandom(-2, 2);
+      console.log(stopCount.value);
 
       runPickAnime();
     };
 
     return {
-      bgImageFile,
-      bgImage,
       startBtnClickable,
-      showModal,
-      groupedPrizes,
       pickedPrize,
+      groupedPrizes,
       pickUp,
     };
   },
