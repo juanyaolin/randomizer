@@ -29,7 +29,7 @@ const createPrizes = (count) => {
 };
 
 const sound = new Audio("assets/sound/disconnect.mp3");
-const meowSound = new Audio("assets/sound/meow.mp3");
+const meowSound = new Audio("assets/sound/buling.mp3");
 
 // 取得隨機值
 const getRandom = (min, max) => {
