@@ -30,6 +30,7 @@ const createPrizes = (count) => {
 
 const sound = new Audio("assets/sound/disconnect.mp3");
 const meowSound = new Audio("assets/sound/buling.mp3");
+const finishedCount = 15;
 
 // 取得隨機值
 const getRandom = (min, max) => {
@@ -41,7 +42,7 @@ const getRandomPrize = (playCount, prizeGroups) => {
   const itemCount = [0, 0, 3, 10];
 
   prizeGroups.forEach((prizeGroup, index) => {
-    if (playCount.value < 18) {
+    if (playCount.value < finishedCount) {
       for (let i = 0; i < itemCount[prizeGroup.length]; i++) {
         pool.push(index);
       }
@@ -114,7 +115,7 @@ const app = Vue.createApp({
         element.add("talk-dialog-in");
         element.remove("hide");
 
-        if (playCount.value < 18) {
+        if (playCount.value < finishedCount) {
           startBtnClickable.value = true;
         }
 
@@ -165,7 +166,7 @@ const app = Vue.createApp({
         }
       });
 
-      prizeRounds.value = unpickedPrizes.value.length * getRandom(3, 5) + rr;
+      prizeRounds.value = unpickedPrizes.value.length * getRandom(2, 3) + rr;
       stopCount.value = 10 + getRandom(-2, 2);
       console.log(stopCount.value);
 
