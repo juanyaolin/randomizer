@@ -73,6 +73,7 @@
               <div class="col">
                 <div class="row reverse q-ma-md">
                   <div
+                    id="pickBtn"
                     class="bg-repeat-none bg-size-cover flex flex-center q-my-lg"
                     style="
                       background-image: url(assets/image/button.png);
@@ -118,6 +119,33 @@
 
           <div class="" style="position: absolute; bottom: 0px; left: 0px">
             <img src="assets/image/lion.png" alt="" style="width: 300px" />
+          </div>
+
+          <div
+            id="final-dialog"
+            class="hide"
+            style="
+              position: absolute;
+              top: 50%;
+              left: 50%;
+              transform: translate(-50%, -50%);
+            "
+          >
+            <img src="assets/image/dialog.png" alt="" style="width: 1800px" />
+            <div
+              class="text-center"
+              style="
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                font-size: 6rem;
+                font-weight: 700;
+                transform: translate(-50%, -50%);
+              "
+            >
+              中獎號碼
+              <div style="font-size: 10rem">{{ wonPrizesString }}</div>
+            </div>
           </div>
         </q-page-container>
       </q-layout>

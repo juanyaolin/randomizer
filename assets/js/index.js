@@ -78,6 +78,7 @@ const app = Vue.createApp({
     const pickedPrize = Vue.ref({});
     const playCount = Vue.ref(0);
     const stopCount = Vue.ref(0);
+    const wonPrizesString = Vue.ref("");
 
     const groupedPrizes = Vue.computed(() => {
       const groupedPrizes = [];
@@ -115,8 +116,22 @@ const app = Vue.createApp({
         element.add("talk-dialog-in");
         element.remove("hide");
 
+        console.log(pickedPrize.value.value % 10);
+
         if (playCount.value < finishedCount) {
           startBtnClickable.value = true;
+        } else {
+          const wonPrizes = [];
+          const element = document.querySelector("#final-dialog").classList;
+          element.remove("hide");
+
+          const tt = pickedPrize.value.value % 10;
+          console.log(tt);
+          for (let index = 0; index <= 2; index++) {
+            wonPrizes.push(tt + index * 10);
+          }
+
+          wonPrizesString.value = wonPrizes.join(" ");
         }
 
         return;
@@ -168,15 +183,21 @@ const app = Vue.createApp({
 
       prizeRounds.value = unpickedPrizes.value.length * getRandom(2, 3) + rr;
       stopCount.value = 10 + getRandom(-2, 2);
-      console.log(stopCount.value);
 
       runPickAnime();
     };
+
+    document.querySelector("body").addEventListener("keyup", function (event) {
+      if (event.keyCode === 13) {
+        pickUp();
+      }
+    });
 
     return {
       startBtnClickable,
       pickedPrize,
       groupedPrizes,
+      wonPrizesString,
       pickUp,
     };
   },
